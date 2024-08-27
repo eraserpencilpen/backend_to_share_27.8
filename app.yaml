@@ -1,0 +1,9 @@
+# [START app_yaml]
+runtime: nodejs20
+entrypoint: node functions/index.js
+instance_class: F2
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_instances: 1
+  max_instances: 5
+# [END app_yaml]

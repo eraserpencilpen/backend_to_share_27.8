@@ -1,0 +1,416 @@
+// const sqlite3 = require("sqlite3").verbose();
+// // function init_db(){
+// //     const db = new sqlite3.Database('./new_data.db');
+// //     orders = 
+// //     `CREATE TABLE IF NOT EXISTS orders (
+// //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+// //         goods_name TEXT,
+// //         order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+// //         goods_quantity INTEGER,
+// //         goods_price REAL)
+// //     `;
+// //     db.run(orders)
+
+// //     sql_inventory = `
+// //     CREATE TABLE inventory(
+// //     id INTEGER PRIMARY KEY AUTOINCREMENT,
+// //     goods_image BLOB NULL,
+// //     goods_name TEXT,
+// //     goods_quantity INTEGER,
+// //     goods_price REAL
+// //     )
+// //     `
+// //     db.run(sql_inventory);
+
+// //     sql3 = `CREATE TABLE requests(
+// //     id INTEGER PRIMARY KEY AUTOINCREMENT,
+// //     goods_name VARCHAR(255),
+// //     goods_quantity INTEGER,
+// //     status VARCHAR(255)
+// //     )` // Status is either a for accepted, 
+// //     // d for declined and nd for not determined.
+// //     db.run(sql3);    
+
+// //     db.close();
+// // }
+
+// // function populate_db(){
+// //     const db = new sqlite3.Database('./orders.db');
+// //     sql = `
+// //     INSERT INTO inventory (goods_name, goods_quantity, goods_price) VALUES
+// // ('Apples', '100 kg', '5.00 RM/kg'),
+// // ('Bananas', '200 bunches', '2.67 RM/bunch'),
+// // ('Carrots', '50 kg', '4.00 RM/kg'),
+// // ('Tomatoes', '75 kg', '3.33 RM/kg');    `
+// //     db.run(sql);
+// //     db.close();
+// // }
+
+
+// const fs = require('fs');
+// const path = require('path');
+
+// // function below is to insert inventory information to the inventory tables
+
+// function populate_db() {
+//     const scriptDir = __dirname;
+//     const dbPath = path.join(scriptDir, 'new_data.db');
+//     const imagesPath = scriptDir;
+
+//     const db = new sqlite3.Database(dbPath);
+
+//     // Function to convert an image file to a BLOB
+//     function imageToBlob(imagePath, callback) {
+//         fs.readFile(imagePath, (err, data) => {
+//             if (err) {
+//                 console.error(`Error reading image file at ${imagePath}: ${err}`);
+//                 callback(err, null);
+//             } else {
+//                 callback(null, data);
+//             }
+//         });
+//     }
+
+//     // Image filenames and their corresponding goods names
+//     const imageFiles = {
+//         "Coconut": 'image.png'
+//     };
+
+//     let pendingInserts = Object.keys(imageFiles).length;
+
+//     // Insert data for each item
+//     for (const [goodsName, imageFile] of Object.entries(imageFiles)) {
+//         const imagePath = path.join('./', imageFile);
+
+//         imageToBlob(imagePath, (err, imageBlob) => {
+//             if (err) {
+//                 console.error(`Skipping ${goodsName} due to error`);
+//                 if (--pendingInserts === 0) {
+//                     db.close();
+//                 }
+//                 return;
+//             }
+
+//             const sql = `
+//             INSERT INTO inventory (goods_name, goods_image, goods_quantity, goods_price, goods_type) VALUES (?, ?, ?, ?, ?)
+//             `;
+
+//             // Adjust these values as needed
+//             const goodsQuantity = '200'; // Example quantity
+//             const goodsPrice = '4.88'; // Example price
+//             const goodsType = 'SPICES';
+
+//             db.run(sql, [goodsName, imageBlob, goodsQuantity, goodsPrice, goodsType], function (err) {
+//                 if (err) {
+//                     console.error(`Error inserting data for ${goodsName}: ${err}`);
+//                 }
+
+//                 // Check if all inserts are done
+//                 if (--pendingInserts === 0) {
+//                     db.close();
+//                 }
+//             });
+//         });
+//     }
+// }
+
+// populate_db()
+
+
+// //================================================================================================================
+// //================================================================================================================
+// //================================================================================================================
+
+
+// // New function 
+// // insert data into the farmer table:
+// function init_db(){
+//     const db = new sqlite3.Database('./new_data.db');
+//     orders = 
+//     `CREATE TABLE IF NOT EXISTS farmer (
+//     id INTEGER PRIMARY KEY AUTOINCREMENT,
+//     name TEXT,
+//     rating INTEGER,
+//     profile_image BLOB,
+//     latitude REAL,
+//     longitude REAL,
+//     location_text TEXT
+// );`;
+
+//     db.run(orders);
+//     db.close();
+// }
+
+// //init_db()
+
+// // insert farmer information 
+// // location can be one of three location
+// // CAMERON HIGHLANDS,
+// // KETENGAH
+// // SEJORA
+
+
+// // data to enter: 
+// //
+// //== CAMERON HIGHLAND - FARMER INFO
+// //
+// // row 1 : ALimi S. , 3.9, 4.508906, 101.408432  ==> Done
+// // row 2 : Mark M. , 4.3, 4.507529, 101.407280  ==> Done
+// // row 3: Koh Q. , 4.7, 4.505672, 101.407158  ==> Done
+// // row 4 : Han G. , 0.0, 4.503509, 101.402186 ==> Done
+// // row 5 : Chua R. ,5.0 , 4.515578, 101.394950 ==> Done
+// //
+// //== BESUT , TERENGGANU
+// //
+// // row 6 : tony r. ,4.6 , 5.668685, 102.500264 ==> done
+// // row 7 : Craig j. ,3.4, 5.666672, 102.480560 ==> done
+// // row 8 : Amirul J. , 3.7, 5.648390, 102.487880 ==> done
+// // row 9 : Chan K. , 4.2, 5.660361, 102.523794 ==> done
+// // row 10 : Jonas J. , 4.3, 5.686115, 102.483751 ==> done
+// // row 11 : hunter W. , 3.1, 5.687428, 102.468973 ==> done
+// //
+// //== MACHANG, KELANTAN
+// //
+// // row 12 : Halim A. , 2.9, 5.765262, 102.201524 ==> done
+// // row 13 : Adam M. , 4.0, 5.764605, 102.193886 ==> done
+// // row 14 : Syahir S. , 3.9 , 5.762997, 102.184852 ==> done
+// // row 15 : Faiz J. , 3.1, 5.756786, 102.187129 ==> done
+// // row 16 : Amir A. , 4.5, 5.755105, 102.195575 ==> done
+// // row 17 : Pok Ya , 4.2, 5.752767, 102.212321 ==> Done
+// // row 18 : Aizat A. , 2.9 , 5.773593, 102.191977 ==> 
+
+// // uncomment to use 
+// // manually enter and rerun the script to insert data into the new_data.db
+
+// // function insertFarmer() {
+// //     const db = new sqlite3.Database('./new_data.db');
+// //     const name = "Aizat A.";
+// //     const rating = "2.9";
+// //     const imagePath = "./image.png";
+// //     const latitude = "5.773593";
+// //     const longitude = "102.191977";
+// //     const locationText = "MACHANG"; 
+
+
+// //     // Read the image file as a binary buffer
+// //     const profileImage = fs.readFileSync(imagePath);
+
+// //     const insertQuery = `
+// //         INSERT INTO farmer (name, rating, profile_image, latitude, longitude, location_text)
+// //         VALUES (?, ?, ?, ?, ?, ?);
+// //     `;
+
+// //     db.run(insertQuery, [name, rating, profileImage, latitude, longitude, locationText], function(err) {
+// //         if (err) {
+// //             return console.error('Error inserting data:', err.message);
+// //         }
+// //         console.log(`A row has been inserted with rowid ${this.lastID}`);
+// //     });
+
+// //     db.close();
+// // }
+
+// // INSERTS THE DATA INTO THE DATABASE   
+// //insertFarmer()
+
+// //============================================================================================================
+// //============================================================================================================
+// //============================================================================================================
+
+// // write a function to store location data
+// // write a function to create an sql table
+// //
+
+// //============================================================================================================
+// //============================================================================================================
+// //============================================================================================================
+
+// // write a function to store amount of orders into the new_data.db
+// // 
+
+// function insertOrder(goodsName, goodsQuantity, goodsPrice, orderDate) {
+//     const db = new sqlite3.Database('./new_data.db');
+    
+//     const insertQuery = `
+//         INSERT INTO orders (goods_name, goods_quantity, goods_price, order_date)
+//         VALUES (?, ?, ?, ?)
+//     `;
+    
+//     db.run(insertQuery, [goodsName, goodsQuantity, goodsPrice, orderDate], function(err) {
+//         if (err) {
+//             return console.error('Error inserting data:', err.message);
+//         }
+//         console.log(`A row has been inserted with rowid ${this.lastID}`);
+//     });
+
+//     db.close();
+// }
+
+// // Example usage:
+// const specificDate_1 = '2024-10-24 08:04:01'; // Format: 'YYYY-MM-DD HH:MM:SS'
+// const specificDate_2 = '2024-10-24 01:09:01';
+// const specificDate_3 = '2024-10-24 10:39:41';
+// const specificDate_4 = '2024-10-24 10:02:00';
+// const specificDate_5 = '2024-10-24 11:29:41';
+// const specificDate_6 = '2024-10-24 11:24:05';
+// const specificDate_7 = '2024-10-24 11:39:01';
+// const specificDate_8 = '2024-10-24 11:43:41';
+// const specificDate_9 = '2024-10-24 13:03:41';
+
+// // insertOrder('Durian Musang King', 30, 5, specificDate_1);
+// // insertOrder('Rambutan', 20, 5, specificDate_2);
+// // insertOrder('Lychee', 80, 5, specificDate_3);
+// // insertOrder('Durian Musang King', 30, 5, specificDate_4);
+// // insertOrder('Rambutan', 20, 5, specificDate_5);
+// // insertOrder('Lychee', 90, 5, specificDate_6);
+// // insertOrder('Durian Musang King', 50, 5, specificDate_7);
+// // insertOrder('Rambutan', 20, 5, specificDate_8);
+// // insertOrder('Harum Manis Mango', 30, 5, specificDate_9);
+// // insertOrder('Durian Musang King', 50, 5, specificDate_1);
+// // insertOrder('Rambutan', 70, 5, specificDate_2);
+// // insertOrder('Lychee', 30, 5, specificDate_1);
+// // insertOrder('Durian Musang King', 20, 5, specificDate_2);
+// // insertOrder('Rambutan', 10, 5, specificDate_3);
+// // insertOrder('Lychee', 40, 5, specificDate_4);
+// // insertOrder('Durian Musang King', 50, 5, specificDate_5);
+// // insertOrder('Rambutan', 30, 5, specificDate_6);
+// // insertOrder('Lychee', 60, 5, specificDate_7);
+// // insertOrder('Durian Musang King', 20, 5, specificDate_8);
+// // insertOrder('Rambutan', 30, 5, specificDate_9);
+// // insertOrder('Lychee', 90, 5, specificDate_1);
+// // insertOrder('Durian Musang King', 50, 5, specificDate_2);
+
+
+const fs = require('fs');
+const path = require('path');
+const sqlite3 = require("sqlite3").verbose();
+
+
+function populate_db() {
+    const scriptDir = __dirname;
+    const dbPath = path.join(scriptDir, 'new_data.db');
+    const imagesPath = scriptDir;
+
+    const db = new sqlite3.Database(dbPath);
+
+    // Function to convert an image file to a BLOB
+    function imageToBlob(imagePath, callback) {
+        fs.readFile(imagePath, (err, data) => {
+            if (err) {
+                console.error(`Error reading image file at ${imagePath}: ${err}`);
+                callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    }
+
+    // Image filenames and their corresponding goods names
+
+    // ENTER INTO FILE NAME : 200 g 
+    // 250 g / 0.25 Kg , 500 g / 0.5 Kg, 1000g / 1 Kg, 2000g / 2 Kg, 5000 g / 5 Kg
+    const imageFiles = {
+        "Cranberry 250 g / 0.25 Kg": 'image.png'
+    };
+
+    let pendingInserts = Object.keys(imageFiles).length;
+
+    // Insert data for each item
+    for (const [goodsName, imageFile] of Object.entries(imageFiles)) {
+        const imagePath = path.join('./', imageFile);
+
+        imageToBlob(imagePath, (err, imageBlob) => {
+            if (err) {
+                console.error(`Skipping ${goodsName} due to error`);
+                if (--pendingInserts === 0) {
+                    db.close();
+                }
+                return;
+            }
+
+            const sql = `
+            INSERT INTO inventory (goods_name, goods_image, goods_quantity, goods_price, goods_type) VALUES (?, ?, ?, ?, ?)
+            `;
+
+            // Adjust these values as needed
+            const goodsQuantity = '40500'; // Example quantity
+            const goodsPrice = '3.99'; // Example price
+            const goodsType = 'FRUIT';
+            // ONLY TYPES THAT EXIST: FRUIT | SPICES | VEGETABLE | GRAINS 
+
+            db.run(sql, [goodsName, imageBlob, goodsQuantity, goodsPrice, goodsType], function (err) {
+                if (err) {
+                    console.error(`Error inserting data for ${goodsName}: ${err}`);
+                }
+
+                // Check if all inserts are done
+                if (--pendingInserts === 0) {
+                    db.close();
+                }
+            });
+        });
+    }
+}
+
+populate_db()
+
+
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+
+function getInventoryData(callback) {
+    const scriptDir = __dirname;
+    const dbPath = path.join(scriptDir, 'new_data.db');
+
+    const db = new sqlite3.Database(dbPath);
+
+    const sql = `SELECT goods_name, goods_image, goods_quantity, goods_price, goods_type FROM inventory`;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error(`Error fetching data: ${err}`);
+            callback(err, null);
+        } else {
+            // Convert image BLOBs to base64 strings for JSON representation
+            const formattedRows = rows.map(row => ({
+                goods_name: row.goods_name,
+                goods_image: row.goods_image ? row.goods_image.toString('base64') : null,
+                goods_quantity: row.goods_quantity,
+                goods_price: row.goods_price,
+                goods_type: row.goods_type
+            }));
+            callback(null, formattedRows);
+        }
+
+        db.close();
+    });
+}
+
+// Example usage of the function:
+getInventoryData((err, data) => {
+    if (err) {
+        console.error("Error:", err);
+    } else {
+        console.log("Inventory Data:", JSON.stringify(data, null, 2));
+    }
+});
+
+import requests
+
+# Make sure this endpoint is correct and matches the one you created in your Node.js server
+url = "http://localhost:8080/profile/UploadGoods"
+
+# Data to be inserted
+data = {'goodsName': 'Bananas', 'goods_Quantity': '5', 'goods_Price': '10'}
+
+# Sending a POST request to insert the data with JSON content-type
+response = requests.post(url, json=data)
+
+# Output the response from the server
+print(response.status_code)
+
+# Try to parse the response as JSON if possible
+try:
+    print(response.json())
+except ValueError:
+    print("Response is not in JSON format:", response.text)
