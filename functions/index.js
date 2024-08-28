@@ -1,22 +1,23 @@
 const path = require('path');
 const express = require('express');
-const { verifyToken } = require('../path/to/serviceAccountKey.json');
-const admin = require('firebase-admin');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
-foo = {origin: 
-    ['https://66cd85e86d1510ac55cfd237--eloquent-klepon-2c098a.netlify.app','https://66cd766488b5ca9bfcb43aaf--fascinating-bunny-bdd323.netlify.app/'],
-    default:"https://66cd85e86d1510ac55cfd237--eloquent-klepon-2c098a.netlify.app"}
 
 
 
-app.use(cors());
+app.use(cors({origin : ["https://66cecff155b9b604031fa752--jocular-chimera-4a6910.netlify.app/","https://visionary-monstera-576842.netlify.app"]}));
 
 const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "https://visionary-monstera-576842.netlify.app"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+  
 
 //=================================================================================================================
 //=================================================================================================================
@@ -68,9 +69,7 @@ app.listen(PORT, '0.0.0.0', () => {
 // AUGUST 27th 2024 : 14:22
 
 app.get('/inventory', (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const pageSize = parseInt(req.query.pageSize) || 10;
-    getInventoryData(page, pageSize, (err, data) => {
+    getInventoryData( (err, data) => {
         if (err) {
             res.status(500).send('Error retrieving inventory data');
         } else {
@@ -79,39 +78,73 @@ app.get('/inventory', (req, res) => {
     });
 });
 // Function to get paginated inventory data
-function getInventoryData(page, pageSize, callback) {
+// function getInventoryData(callback) {
+//     const scriptDir = __dirname;
+//     const dbPath = path.join(scriptDir, 'new_data.db');
+
+//     const db = new sqlite3.Database(dbPath);
+
+//     const sql = `SELECT goods_name, goods_image, goods_quantity, goods_price, goods_type FROM inventory`;
+
+//     db.all(sql, [], (err, rows) => {
+//         if (err) {
+//             console.error(`Error fetching data: ${err}`);
+//             callback(err, null);
+//         } else {
+//             callback(null, rows);
+//             db.all(sql, [], (err, rows) => {
+//                 if (err) {
+//                     console.error('Error fetching data: ${err}');
+//                     callback(err, null);
+//                 } else {
+//                     // Convert image BLOBs to base64 strings for JSON representation
+//                     const formattedRows = rows.map(row => ({
+//                         goods_name: row.goods_name,
+//                         goods_image: row.goods_image ? row.goods_image.toString('base64') : null,
+//                         goods_quantity: row.goods_quantity,
+//                         goods_price: row.goods_price,
+//                         goods_type: row.goods_type
+//                     }));
+//                     callback(null, formattedRows);
+//                 }
+        
+//                 db.close();
+//             });
+//         }
+
+//         db.close();
+//     });
+// }
+
+// new code 11:33 Aug 28 2024
+// tries to fix the http header error. (mulitple response)
+// error attempted to be removed, async operation within async operation
+// cause callback within callbacks, instead of sending data
+
+
+function getInventoryData(callback) {
     const scriptDir = __dirname;
     const dbPath = path.join(scriptDir, 'new_data.db');
 
     const db = new sqlite3.Database(dbPath);
 
-    const offset = (page - 1) * pageSize;
-    const sql = `SELECT goods_name, goods_image, goods_quantity, goods_price, goods_type FROM inventory LIMIT ? OFFSET ?`;
+    const sql = 'SELECT goods_name, goods_image, goods_quantity, goods_price, goods_type FROM inventory';
 
-    db.all(sql, [pageSize, offset], (err, rows) => {
+    db.all(sql, [], (err, rows) => {
         if (err) {
             console.error(`Error fetching data: ${err}`);
             callback(err, null);
         } else {
-            callback(null, rows);
-            db.all(sql, [], (err, rows) => {
-                if (err) {
-                    console.error('Error fetching data: ${err}');
-                    callback(err, null);
-                } else {
-                    // Convert image BLOBs to base64 strings for JSON representation
-                    const formattedRows = rows.map(row => ({
-                        goods_name: row.goods_name,
-                        goods_image: row.goods_image ? row.goods_image.toString('base64') : null,
-                        goods_quantity: row.goods_quantity,
-                        goods_price: row.goods_price,
-                        goods_type: row.goods_type
-                    }));
-                    callback(null, formattedRows);
-                }
-        
-                db.close();
-            });
+            // Convert image BLOBs to base64 strings for JSON representation
+            const formattedRows = rows.map(row => ({
+                goods_name: row.goods_name,
+                goods_image: row.goods_image ? row.goods_image.toString('base64') : null,
+                goods_quantity: row.goods_quantity,
+                goods_price: row.goods_price,
+                goods_type: row.goods_type
+            }));
+
+            callback(null, formattedRows);
         }
 
         db.close();
@@ -291,7 +324,9 @@ app.get('/farmer', (req, res) => {
 
 function insertOrder(goodsName, goodsQuantity, goodsPrice, orderDate, callback) {
     console.log('Starting database insertion process...');
-    const db = new sqlite3.Database('./new_data.db', (err) => {
+    const scriptDir = __dirname;
+    const dbPath = path.join(scriptDir, 'new_data.db');
+    const db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
             console.error('Failed to connect to the database:', err.message);
             return callback(err, null);
@@ -361,7 +396,10 @@ app.post('/insertorders', (req, res) => {
 // to be used on the farmer manage order page:
 function deleteOrder(orderId, callback) {
     console.log('Starting database deletion process...');
-    const db = new sqlite3.Database('./new_data.db', (err) => {
+    const scriptDir = __dirname;
+    const dbPath = path.join(scriptDir, 'new_data.db');
+
+    const db = new sqlite3.Database(dbPath, (err) => {
         if (err) {
             console.error('Failed to connect to the database:', err.message);
             return callback(err, null);
@@ -401,6 +439,8 @@ function deleteOrder(orderId, callback) {
 // will be used on the FarmerManageOrderPage
 
 app.delete('/deleteorder/:id', (req, res) => {
+
+
     console.log('Received DELETE request to /deleteorder with id:', req.params.id);
     const orderId = req.params.id;
 
