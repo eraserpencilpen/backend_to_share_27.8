@@ -7,13 +7,12 @@ const sqlite3 = require('sqlite3').verbose();
 
 
 
-app.use(cors({origin : ["https://66cecff155b9b604031fa752--jocular-chimera-4a6910.netlify.app/","https://visionary-monstera-576842.netlify.app"]}));
 
 const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "https://visionary-monstera-576842.netlify.app"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
   });
@@ -138,7 +137,7 @@ function getInventoryData(callback) {
             // Convert image BLOBs to base64 strings for JSON representation
             const formattedRows = rows.map(row => ({
                 goods_name: row.goods_name,
-                goods_image: row.goods_image ? row.goods_image.toString('base64') : null,
+                goods_image: Buffer.from(row.goods_image).toString("base64"),
                 goods_quantity: row.goods_quantity,
                 goods_price: row.goods_price,
                 goods_type: row.goods_type
